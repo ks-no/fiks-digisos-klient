@@ -1,4 +1,4 @@
 # Digisos Klient
-Klient for å laste opp filer til Fiks-Digisos.
+Java-klient for å laste opp filer til Fiks-Digisos.
 
 Bruker https://github.com/ks-no/fiks-streaming-klient for å sende multipart requests.
