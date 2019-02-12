@@ -36,7 +36,7 @@
         <fiks-maskinporten-client.version>1.0.8</fiks-maskinporten-client.version>
         <jetty-client.version>9.4.13.v20181111</jetty-client.version>
         <lombok.version>1.18.4</lombok.version>
-        <streaming-klient.version>1.0.3-SNAPSHOT</streaming-klient.version>
+        <streaming-klient.version>1.0.3</streaming-klient.version>
         <jackson.version>2.9.8</jackson.version>
         <commons-io.version>2.6</commons-io.version>
     </properties>
