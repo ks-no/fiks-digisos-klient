@@ -1,7 +1,5 @@
 package no.ks.fiks.digisos.klient;
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import no.ks.fiks.digisos.klient.model.DokumentInfo;
@@ -20,7 +18,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Slf4j
 public class DigisosKlient implements AutoCloseable {
@@ -41,7 +45,7 @@ public class DigisosKlient implements AutoCloseable {
 
     public KlientResponse<List<DokumentInfo>> krypterOgLastOppFiler(@NonNull List<FilOpplasting> dokumenter, @NonNull UUID fiksOrgId, @NonNull UUID digisosId) {
 
-        List<ListenableFuture<Boolean>> krypteringFutureList = Collections.synchronizedList(new ArrayList<>(dokumenter.size()));
+        final List<CompletableFuture<Void>> krypteringFutureList = Collections.synchronizedList(new ArrayList<>(dokumenter.size()));
         try {
             KlientResponse<List<DokumentInfo>> opplastetFiler = digisosApi.lastOppFiler(krypterFiler(dokumenter, krypteringFutureList), fiksOrgId, digisosId);
             log.debug("Sendt til Digisos API");
@@ -58,18 +62,18 @@ public class DigisosKlient implements AutoCloseable {
         executor.shutdownNow();
     }
 
-    private void waitForFutures(List<ListenableFuture<Boolean>> krypteringFutureList) {
-        ListenableFuture<Boolean> call = Futures.whenAllSucceed(krypteringFutureList).call(() -> true, executor);
+    private void waitForFutures(List<CompletableFuture<Void>> krypteringFutureList) {
+        final CompletableFuture<Void> allFutures = CompletableFuture.allOf(krypteringFutureList.toArray(new CompletableFuture[]{}));
         try {
-            call.get(timeoutSeconds, TimeUnit.SECONDS);
-        } catch (ExecutionException e) {
+            allFutures.get(timeoutSeconds, TimeUnit.SECONDS);
+        } catch (CompletionException e) {
             throw new IllegalStateException(e.getCause());
-        } catch (TimeoutException | InterruptedException e) {
+        } catch (ExecutionException | TimeoutException | InterruptedException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private List<FilOpplasting> krypterFiler(@NonNull List<FilOpplasting> dokumenter, List<ListenableFuture<Boolean>> krypteringFutureList) {
+    private List<FilOpplasting> krypterFiler(@NonNull List<FilOpplasting> dokumenter, List<CompletableFuture<Void>> krypteringFutureList) {
 
         List<FilOpplasting> krypterteDokumenter = new ArrayList<>(dokumenter.size());
 
@@ -80,7 +84,7 @@ public class DigisosKlient implements AutoCloseable {
         return krypterteDokumenter;
     }
 
-    private InputStream krypter(@NonNull InputStream dokumentStream, List<ListenableFuture<Boolean>> krypteringFutureList) {
+    private InputStream krypter(@NonNull InputStream dokumentStream, List<CompletableFuture<Void>> krypteringFutureList) {
 
         if (publicCertificate == null) {
             publicCertificate = fetchDokumentlagerPublicCertificate();
@@ -90,12 +94,11 @@ public class DigisosKlient implements AutoCloseable {
         try {
 
             PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
-            ListenableFuture<Boolean> e1 = Futures.submitAsync(() -> {
+            CompletableFuture<Void> e1 = CompletableFuture.runAsync(() -> {
                 try {
                     log.debug("Starting encryption...");
                     kryptering.krypterData(pipedOutputStream, dokumentStream, publicCertificate, provider);
                     log.debug("Encryption completed");
-                    return Futures.immediateFuture(true);
                 } catch (Exception e) {
                     log.error("Encryption failed, setting exception on encrypted InputStream", e);
                     pipedInputStream.setException(e);

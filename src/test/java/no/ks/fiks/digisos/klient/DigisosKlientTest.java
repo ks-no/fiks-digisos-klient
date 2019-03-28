@@ -246,7 +246,7 @@ public class DigisosKlientTest {
         try (DigisosKlient digisosKlient = DigisosKlient.builder().digisosApi(digisosApi).kryptering(krypteringMock).build()) {
 
             IllegalStateException exception = assertThrows(IllegalStateException.class, () -> digisosKlient.krypterOgLastOppFiler(singletonList(filOpplasting), UUID.randomUUID(), UUID.randomUUID()));
-            assertEquals("Kryptering feilet", exception.getCause().getCause().getMessage());
+            assertEquals("Kryptering feilet", exception.getCause().getCause().getCause().getMessage());
         }
         verify(digisosApi).lastOppFiler(anyList(), isA(UUID.class), isA(UUID.class));
     }
@@ -281,7 +281,7 @@ public class DigisosKlientTest {
 
         try (DigisosKlient digisosKlient = DigisosKlient.builder().digisosApi(digisosApi).kryptering(krypteringMock).build()) {
             IllegalStateException exception = assertThrows(IllegalStateException.class, () -> digisosKlient.krypterOgLastOppFiler(Arrays.asList(filOpplasting, filOpplasting2), UUID.randomUUID(), UUID.randomUUID()));
-            assertEquals("Kryptering feilet", exception.getCause().getCause().getMessage());
+            assertEquals("Kryptering feilet", exception.getCause().getCause().getCause().getMessage());
         }
     }
 
