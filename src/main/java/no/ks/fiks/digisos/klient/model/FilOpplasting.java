@@ -11,4 +11,14 @@ public class FilOpplasting {
     @NonNull private FilMetadata metadata;
     @NonNull private InputStream data;
 
+    FilOpplasting metadata(FilMetadata metadata) {
+        this.metadata = metadata;
+        return this;
+    }
+
+    FilOpplasting data(InputStream data) {
+        this.data = data;
+        return this;
+    }
+
 }
