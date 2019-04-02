@@ -10,6 +10,7 @@ import no.ks.kryptering.CMSStreamKryptering;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.security.Provider;
 import java.security.Security;
@@ -18,13 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DigisosKlient implements AutoCloseable {
@@ -47,18 +43,21 @@ public class DigisosKlient implements AutoCloseable {
 
         final List<CompletableFuture<Void>> krypteringFutureList = Collections.synchronizedList(new ArrayList<>(dokumenter.size()));
         try {
-            KlientResponse<List<DokumentInfo>> opplastetFiler = digisosApi.lastOppFiler(krypterFiler(dokumenter, krypteringFutureList), fiksOrgId, digisosId);
-            log.debug("Sendt til Digisos API");
+            KlientResponse<List<DokumentInfo>> opplastetFiler = digisosApi.lastOppFiler(dokumenter.stream()
+                            .map(dokument -> new FilOpplasting(dokument.getMetadata(), krypter(dokument.getData(), krypteringFutureList)))
+                            .collect(Collectors.toList()), fiksOrgId, digisosId);
+
 
             waitForFutures(krypteringFutureList);
+            log.info("{} dokumenter lagt til digisosId {} på fiksOrg {}", dokumenter.size(), digisosId, fiksOrgId);
             return opplastetFiler;
         } finally {
-            krypteringFutureList.stream().filter(f -> ! f.isDone() && ! f.isCancelled()).forEach(future -> future.cancel(true));
+            krypteringFutureList.stream().filter(f -> !f.isDone() && !f.isCancelled()).forEach(future -> future.cancel(true));
         }
     }
 
     @Override
-    public void close(){
+    public void close() {
         executor.shutdownNow();
     }
 
@@ -73,35 +72,22 @@ public class DigisosKlient implements AutoCloseable {
         }
     }
 
-    private List<FilOpplasting> krypterFiler(@NonNull List<FilOpplasting> dokumenter, List<CompletableFuture<Void>> krypteringFutureList) {
-
-        List<FilOpplasting> krypterteDokumenter = new ArrayList<>(dokumenter.size());
-
-        dokumenter.forEach(dokument -> {
-            krypterteDokumenter.add(new FilOpplasting(dokument.getMetadata(), krypter(dokument.getData(), krypteringFutureList)));
-        });
-
-        return krypterteDokumenter;
-    }
-
     private InputStream krypter(@NonNull InputStream dokumentStream, List<CompletableFuture<Void>> krypteringFutureList) {
 
         if (publicCertificate == null) {
             publicCertificate = fetchDokumentlagerPublicCertificate();
         }
 
-        DigisosPipedInputStream pipedInputStream = new DigisosPipedInputStream();
+        PipedInputStream pipedInputStream = new PipedInputStream();
         try {
-
             PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
-            CompletableFuture<Void> e1 = CompletableFuture.runAsync(() -> {
+            CompletableFuture<Void> krypteringFuture = CompletableFuture.runAsync(() -> {
                 try {
                     log.debug("Starting encryption...");
                     kryptering.krypterData(pipedOutputStream, dokumentStream, publicCertificate, provider);
                     log.debug("Encryption completed");
                 } catch (Exception e) {
                     log.error("Encryption failed, setting exception on encrypted InputStream", e);
-                    pipedInputStream.setException(e);
                     throw new IllegalStateException("An error occurred during encryption", e);
                 } finally {
                     try {
@@ -110,12 +96,11 @@ public class DigisosKlient implements AutoCloseable {
                         log.debug("Encryption OutputStream closed");
                     } catch (IOException e) {
                         log.error("Failed closing encryption OutputStream", e);
-                        throw new RuntimeException(e);
                     }
                 }
 
             }, executor);
-            krypteringFutureList.add(e1);
+            krypteringFutureList.add(krypteringFuture);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
