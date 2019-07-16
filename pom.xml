@@ -22,18 +22,18 @@
     <lombok.version>1.18.4</lombok.version>
     <commons-io.version>2.6</commons-io.version>
     <java.version>1.8</java.version>
-    <guava.version>27.0.1-jre</guava.version>
     <fiks-kryptering.version>1.0.5</fiks-kryptering.version>
+    <guava.version>27.0.1-jre</guava.version>
     <changelist>-SNAPSHOT</changelist>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <logback-classic.version>1.2.3</logback-classic.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <revision>1.0.5</revision>
     <fiks-maskinporten-client.version>1.0.10</fiks-maskinporten-client.version>
-    <streaming-klient.version>1.0.5</streaming-klient.version>
+    <revision>1.0.6</revision>
     <jackson.version>2.9.9</jackson.version>
-    <mockito.version>2.24.5</mockito.version>
+    <streaming-klient.version>1.0.5</streaming-klient.version>
     <jetty-client.version>9.4.13.v20181111</jetty-client.version>
+    <mockito.version>2.24.5</mockito.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
   </properties>
   <dependencies>
