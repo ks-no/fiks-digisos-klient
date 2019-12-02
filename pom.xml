@@ -33,7 +33,7 @@
     <streaming-klient.version>1.0.10</streaming-klient.version>
     <jackson.version>2.9.10</jackson.version>
     <jetty-client.version>9.4.13.v20181111</jetty-client.version>
-    <mockito.version>3.0.8</mockito.version>
+    <mockito.version>3.2.0</mockito.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
   </properties>
   <dependencies>
