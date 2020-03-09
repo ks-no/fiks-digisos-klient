@@ -32,7 +32,7 @@
     <revision>1.0.12</revision>
     <streaming-klient.version>1.0.11</streaming-klient.version>
     <jackson.version>2.10.3</jackson.version>
-    <jetty-client.version>9.4.13.v20181111</jetty-client.version>
+    <jetty-client.version>9.4.27.v20200227</jetty-client.version>
     <mockito.version>3.3.0</mockito.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
   </properties>
