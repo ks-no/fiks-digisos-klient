@@ -32,7 +32,7 @@
     <fiks-maskinporten-client.version>1.0.15</fiks-maskinporten-client.version>
     <jackson.version>2.10.3</jackson.version>
     <streaming-klient.version>1.0.12</streaming-klient.version>
-    <mockito.version>3.3.0</mockito.version>
+    <mockito.version>3.5.5</mockito.version>
     <jetty-client.version>9.4.27.v20200227</jetty-client.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
   </properties>
