@@ -22,7 +22,7 @@
     <lombok.version>1.18.12</lombok.version>
     <commons-io.version>2.6</commons-io.version>
     <java.version>1.8</java.version>
-    <fiks-kryptering.version>1.0.8</fiks-kryptering.version>
+    <fiks-kryptering.version>1.0.11</fiks-kryptering.version>
     <guava.version>28.2-jre</guava.version>
     <changelist>-SNAPSHOT</changelist>
     <maven.compiler.target>${java.version}</maven.compiler.target>
