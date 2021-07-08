@@ -28,7 +28,7 @@
     <revision>1.0.14</revision>
     <lombok.version>1.18.12</lombok.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <jetty-client.version>9.4.27.v20200227</jetty-client.version>
+    <jetty-client.version>11.0.6</jetty-client.version>
     <changelist>-SNAPSHOT</changelist>
     <fiks-kryptering.version>1.0.8</fiks-kryptering.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
