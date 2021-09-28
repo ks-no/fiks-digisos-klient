@@ -23,7 +23,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <streaming-klient.version>1.0.12</streaming-klient.version>
     <mockito.version>3.8.0</mockito.version>
-    <guava.version>28.2-jre</guava.version>
+    <guava.version>31.0.1-jre</guava.version>
     <jackson.version>2.12.2</jackson.version>
     <revision>1.0.14</revision>
     <lombok.version>1.18.12</lombok.version>
