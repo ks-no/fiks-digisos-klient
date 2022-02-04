@@ -378,7 +378,7 @@ public class DigisosKlientTest {
                 .build());
         assertEquals("Må ha minumum 1 tråd for kryptering", illegalNumThreadsException.getMessage());
 
-        verifyZeroInteractions(digisosApi);
+        verifyNoInteractions(digisosApi);
     }
 
     private Answer<KlientResponse<List<DokumentInfo>>> assertingAnswerForDigisosApi(final List<byte[]> ukrypterteFiler) {
