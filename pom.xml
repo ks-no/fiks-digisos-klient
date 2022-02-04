@@ -21,7 +21,7 @@
   <properties>
     <java.version>1.8</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
-    <streaming-klient.version>1.0.12</streaming-klient.version>
+    <streaming-klient.version>1.0.16</streaming-klient.version>
     <mockito.version>3.8.0</mockito.version>
     <guava.version>28.2-jre</guava.version>
     <jackson.version>2.13.1</jackson.version>
