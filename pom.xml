@@ -30,7 +30,7 @@
     <streaming-klient.version>1.0.16</streaming-klient.version>
     <mockito.version>4.8.0</mockito.version>
     <guava.version>31.1-jre</guava.version>
-    <jackson.version>2.13.1</jackson.version>
+    <jackson.version>2.13.4</jackson.version>
     <lombok.version>1.18.24</lombok.version>
     <jetty-client.version>9.4.49.v20220914</jetty-client.version>
     <fiks-kryptering.version>1.1.1</fiks-kryptering.version>
