@@ -347,10 +347,9 @@ public class DigisosKlientTest {
             flereDokumenter.add(new FilOpplasting(metadata, new ByteArrayInputStream(data)));
         }
 
-        try (DigisosKlient digisosKlient = DigisosKlient.builder().digisosApi(digisosApi).timeoutSeconds(3).build()) {
-            IllegalStateException timeoutException = assertThrows(IllegalStateException.class, () -> digisosKlient.krypterOgLastOppFiler(flereDokumenter, UUID.randomUUID(), UUID.randomUUID()));
-            assertEquals(TimeoutException.class, timeoutException.getCause().getClass());
-        }
+        DigisosKlient digisosKlient = DigisosKlient.builder().digisosApi(digisosApi).timeoutSeconds(3).build();
+        IllegalStateException timeoutException = assertThrows(IllegalStateException.class, () -> digisosKlient.krypterOgLastOppFiler(flereDokumenter, UUID.randomUUID(), UUID.randomUUID()));
+        assertEquals(TimeoutException.class, timeoutException.getCause().getClass());
     }
 
     @Test
