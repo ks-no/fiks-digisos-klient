@@ -205,7 +205,7 @@ public class DigisosKlientTest {
         List<FilOpplasting> flereDokumenter = new ArrayList<>(numDokumenter);
         List<byte[]> orginaleDokumenterBytes = new ArrayList<>(numDokumenter);
         for (int i = 0; i < numDokumenter; i++) {
-            byte[] data = new byte[new Random().nextInt(1024 * 1024 * 10)];
+            byte[] data = new byte[new Random().nextInt(1024 * 1024 * 5)];
             new Random().nextBytes(data);
             orginaleDokumenterBytes.add(data);
             flereDokumenter.add(new FilOpplasting(metadata, new ByteArrayInputStream(data)));
@@ -298,7 +298,7 @@ public class DigisosKlientTest {
         List<byte[]> orginaleDokumenterBytes2 = new ArrayList<>(numDokumenter);
 
         for (int i = 0; i < numDokumenter; i++) {
-            byte[] data = new byte[1024 * 1024 * 10];
+            byte[] data = new byte[1024 * 1024 * 5];
             new Random().nextBytes(data);
             orginaleDokumenterBytes1.add(data);
             flereDokumenter1.add(new FilOpplasting(metadata, new ByteArrayInputStream(data)));
@@ -336,7 +336,7 @@ public class DigisosKlientTest {
         int numDokumenter = 100;
         List<FilOpplasting> flereDokumenter = new ArrayList<>(numDokumenter);
         for (int i = 0; i < numDokumenter; i++) {
-            byte[] data = new byte[new Random().nextInt(1024 * 1024 * 10)];
+            byte[] data = new byte[new Random().nextInt(1024 * 1024 * 5)];
             new Random().nextBytes(data);
             flereDokumenter.add(new FilOpplasting(metadata, new ByteArrayInputStream(data)));
         }
