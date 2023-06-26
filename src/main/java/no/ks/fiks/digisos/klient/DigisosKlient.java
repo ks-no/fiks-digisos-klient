@@ -1,12 +1,12 @@
 package no.ks.fiks.digisos.klient;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import no.ks.fiks.digisos.klient.model.DokumentInfo;
 import no.ks.fiks.digisos.klient.model.FilOpplasting;
 import no.ks.fiks.streaming.klient.KlientResponse;
 import no.ks.kryptering.CMSKrypteringImpl;
 import no.ks.kryptering.CMSStreamKryptering;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,37 +15,40 @@ import java.io.PipedOutputStream;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-@Slf4j
+import static java.util.Objects.requireNonNull;
+
 public class DigisosKlient implements AutoCloseable {
+
+    private static final Logger log = LoggerFactory.getLogger(DigisosKlient.class);
 
     private final Provider provider = Security.getProvider("BC");
     private X509Certificate publicCertificate = null;
-    private CMSStreamKryptering kryptering;
-    private long timeoutSeconds;
-    private DigisosApi digisosApi;
-    private ExecutorService executor;
+    private final CMSStreamKryptering kryptering;
+    private final long timeoutSeconds;
+    private final DigisosApi digisosApi;
+    private final ExecutorService executor;
 
-    private DigisosKlient(@NonNull DigisosApi digisosApi, @NonNull ExecutorService executor, @NonNull CMSStreamKryptering kryptering, long timeoutSeconds) {
-        this.digisosApi = digisosApi;
-        this.executor = executor;
-        this.kryptering = kryptering;
+    private DigisosKlient(DigisosApi digisosApi, ExecutorService executor, CMSStreamKryptering kryptering, long timeoutSeconds) {
+        this.digisosApi = requireNonNull(digisosApi);
+        this.executor = requireNonNull(executor);
+        this.kryptering = requireNonNull(kryptering);
         this.timeoutSeconds = timeoutSeconds;
     }
 
-    public KlientResponse<List<DokumentInfo>> krypterOgLastOppFiler(@NonNull List<FilOpplasting> dokumenter, @NonNull UUID fiksOrgId, @NonNull UUID digisosId) {
+    public KlientResponse<List<DokumentInfo>> krypterOgLastOppFiler(List<FilOpplasting> dokumenter, UUID fiksOrgId, UUID digisosId) {
+        return doKrypterOgLastOppFiler(requireNonNull(dokumenter), requireNonNull(fiksOrgId), requireNonNull(digisosId));
+    }
 
+    private KlientResponse<List<DokumentInfo>> doKrypterOgLastOppFiler(List<FilOpplasting> dokumenter, UUID fiksOrgId, UUID digisosId) {
         final List<CompletableFuture<Void>> krypteringFutureList = Collections.synchronizedList(new ArrayList<>(dokumenter.size()));
         try {
             KlientResponse<List<DokumentInfo>> opplastetFiler = digisosApi.lastOppFiler(dokumenter.stream()
-                            .map(dokument -> new FilOpplasting(dokument.getMetadata(), krypter(dokument.getData(), krypteringFutureList)))
-                            .collect(Collectors.toList()), fiksOrgId, digisosId);
+                    .map(dokument -> new FilOpplasting(dokument.metadata(), krypter(dokument.data(), krypteringFutureList)))
+                    .collect(Collectors.toList()), fiksOrgId, digisosId);
 
 
             waitForFutures(krypteringFutureList);
@@ -72,7 +75,11 @@ public class DigisosKlient implements AutoCloseable {
         }
     }
 
-    private InputStream krypter(@NonNull InputStream dokumentStream, List<CompletableFuture<Void>> krypteringFutureList) {
+    private InputStream krypter(InputStream dokumentStream, List<CompletableFuture<Void>> krypteringFutureList) {
+        return doKrypter(requireNonNull(dokumentStream), krypteringFutureList);
+    }
+
+    private InputStream doKrypter(InputStream dokumentStream, List<CompletableFuture<Void>> krypteringFutureList) {
 
         if (publicCertificate == null) {
             publicCertificate = fetchDokumentlagerPublicCertificate();
