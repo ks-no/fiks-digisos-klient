@@ -1,14 +1,14 @@
 package no.ks.fiks.digisos.klient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import no.ks.fiks.digisos.klient.model.DokumentInfo;
 import no.ks.fiks.digisos.klient.model.FilMetadata;
 import no.ks.fiks.digisos.klient.model.FilOpplasting;
 import no.ks.fiks.streaming.klient.*;
-import org.eclipse.jetty.client.util.MultiPartContentProvider;
+import org.eclipse.jetty.client.util.MultiPartRequestContent;
 import org.eclipse.jetty.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.ByteArrayInputStream;
@@ -20,8 +20,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
+import static java.util.Objects.requireNonNull;
+
 public class DigisosApiImpl implements DigisosApi {
+
+    private static final Logger log = LoggerFactory.getLogger(DigisosApiImpl.class);
 
     private final StreamingKlient streamingKlient;
     private final String baseUrl;
@@ -32,33 +35,38 @@ public class DigisosApiImpl implements DigisosApi {
     }
 
     @Override
-    public KlientResponse<List<DokumentInfo>> lastOppFiler(@NonNull List<FilOpplasting> dokumenter, @NonNull UUID fiksOrgId, @NonNull UUID digisosId) {
+    public KlientResponse<List<DokumentInfo>> lastOppFiler(List<FilOpplasting> dokumenter, UUID fiksOrgId, UUID digisosId) {
+        return doLastOppFiler(requireNonNull(dokumenter), requireNonNull(fiksOrgId), requireNonNull(digisosId));
+    }
+
+    public KlientResponse<List<DokumentInfo>> doLastOppFiler(List<FilOpplasting> dokumenter, UUID fiksOrgId, UUID digisosId) {
 
         MultipartContentProviderBuilder multipartBuilder = new MultipartContentProviderBuilder();
 
         List<FilForOpplasting<Object>> filer = new ArrayList<>();
 
-        dokumenter.forEach(dokument -> filer.add(FilForOpplasting.builder()
-                .filnavn(dokument.getMetadata().getFilnavn())
-                .metadata(FilMetadata.builder()
-                        .filnavn(dokument.getMetadata().getFilnavn())
-                        .mimetype(dokument.getMetadata().getMimetype())
-                        .storrelse(dokument.getMetadata().getStorrelse())
-                        .build())
-                .data(dokument.getData())
-                .build()));
+        dokumenter.forEach(dokument -> filer.add(
+                new FilForOpplasting<>(
+                        dokument.metadata().filnavn(),
+                        new FilMetadata(
+                                dokument.metadata().filnavn(),
+                                dokument.metadata().mimetype(),
+                                dokument.metadata().storrelse()
+                        ),
+                        dokument.data()
+                )
+        ));
 
         multipartBuilder.addFileData(filer);
-        MultiPartContentProvider multiPartContentProvider = multipartBuilder.build();
+        MultiPartRequestContent multiPartContentProvider = multipartBuilder.build();
 
         List<HttpHeader> httpHeaders = Collections.singletonList(getHttpHeaderRequestId());
 
         log.debug("Starting upload...");
-        KlientResponse<List<DokumentInfo>> response = streamingKlient.sendRequest(multiPartContentProvider, HttpMethod.POST, baseUrl, getLastOppFilerPath(fiksOrgId, digisosId), httpHeaders, new TypeReference<List<DokumentInfo>>() {});
+        KlientResponse<List<DokumentInfo>> response = streamingKlient.sendRequest(multiPartContentProvider, HttpMethod.POST, baseUrl, getLastOppFilerPath(fiksOrgId, digisosId), httpHeaders, new TypeReference<>() {});
         log.debug("Upload completed");
 
         return response;
-
     }
 
     @Override
@@ -67,7 +75,7 @@ public class DigisosApiImpl implements DigisosApi {
         List<HttpHeader> httpHeaders = Collections.singletonList(getHttpHeaderRequestId());
         KlientResponse<byte[]> response = streamingKlient.sendGetRawContentRequest(HttpMethod.GET, baseUrl, "/digisos/api/v1/dokumentlager-public-key", httpHeaders);
 
-        byte[] publicKey = response.getResult();
+        byte[] publicKey = response.result();
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
@@ -88,7 +96,7 @@ public class DigisosApiImpl implements DigisosApi {
         if (MDC.get("requestid") != null) {
             requestId = MDC.get("requestid");
         }
-        return HttpHeader.builder().headerName("requestid").headerValue(requestId).build();
+        return new HttpHeader("requestid", requestId);
     }
 
 }
