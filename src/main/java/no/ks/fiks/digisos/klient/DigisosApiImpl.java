@@ -5,7 +5,7 @@ import no.ks.fiks.digisos.klient.model.DokumentInfo;
 import no.ks.fiks.digisos.klient.model.FilMetadata;
 import no.ks.fiks.digisos.klient.model.FilOpplasting;
 import no.ks.fiks.streaming.klient.*;
-import org.eclipse.jetty.client.util.MultiPartRequestContent;
+import org.eclipse.jetty.client.MultiPartRequestContent;
 import org.eclipse.jetty.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
