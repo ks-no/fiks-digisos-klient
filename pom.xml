@@ -10,7 +10,7 @@
 
   <groupId>no.ks.fiks</groupId>
   <artifactId>digisos-klient</artifactId>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>3.0.0</version>
   <name>Digisos Java-klient</name>
   <description>Klient for å laste opp filer til Fiks-Digisos</description>
   <url>https://github.com/ks-no/fiks-digisos-klient</url>
