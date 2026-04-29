@@ -27,7 +27,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <streaming-klient.version>3.0.0</streaming-klient.version>
+    <streaming-klient.version>3.2.6</streaming-klient.version>
     <guava.version>33.3.0-jre</guava.version>
     <jackson.version>2.17.2</jackson.version>
     <jetty-client.version>12.0.12</jetty-client.version>
