@@ -11,6 +11,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  hello-world:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello
+        run: echo "Hello World!"
+
   build:
     if: |
       github.event_name == 'workflow_dispatch' ||
