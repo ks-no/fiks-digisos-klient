@@ -1,9 +1,28 @@
 version: 2
 updates:
-- package-ecosystem: maven
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "05:38"
-    timezone: Europe/Oslo
-  open-pull-requests-limit: 15
+  - package-ecosystem: maven
+    cooldown:
+      default-days: 3
+      exclude:
+        - "no.ks.fiks*"
+    groups:
+      fiks-deps:
+        patterns:
+          - "no.ks.fiks*"
+        update-types:
+          - "minor"
+          - "patch"
+      other-deps:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "no.ks.fiks*"
+        update-types:
+          - "minor"
+          - "patch"
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "05:38"
+      timezone: Europe/Oslo
+    open-pull-requests-limit: 15
